@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrawide 3840x1080 Snow Glass Grid System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0b1329 0%, #172a46 50%, #0d1b2a 100%);
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Snow Particles Canvas Overlay Background */
+        #snowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .ultrawide-canvas {
+            position: relative;
+            z-index: 2;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(7, 1fr);
+            box-sizing: border-box;
+            background: rgba(10, 20, 38, 0.4);
+        }
+
+        /* Snow Glass Frost Grid Cell */
+        .grid-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(224, 242, 254, 0.25);
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: clamp(1.5rem, 3vw, 4rem);
+            overflow: hidden;
+            padding: 10px;
+            text-align: center;
+            word-break: break-all;
+            background-repeat: no-repeat;
+            /* Ice/Snow Frost Filter */
+            backdrop-filter: blur(8px) saturate(140%);
+            -webkit-backdrop-filter: blur(8px) saturate(140%);
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.08);
+        }
+
+        .grid-cell:hover {
+            border-color: rgba(224, 242, 254, 0.8);
+            z-index: 10;
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.3), 0 0 25px rgba(186, 230, 253, 0.5);
+            transform: scale(1.002);
+        }
+
+        .grid-cell.active-cell {
+            border: 2px solid #bae6fd;
+            z-index: 20;
+            box-shadow: 0 0 35px rgba(186, 230, 253, 0.8), inset 0 0 20px rgba(224, 242, 254, 0.6);
+        }
+
+        /* Snow Glass Control Menu Sidebar */
+        .snow-glass-menu {
+            background: rgba(15, 28, 48, 0.82);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+        }
+
+        /* Snow Glass Top Header */
+        .snow-glass-header {
+            background: rgba(15, 28, 48, 0.85);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 28, 48, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(224, 242, 254, 0.35);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snowCanvas"></canvas>
+
+    <header id="topHeader" class="absolute top-4 left-4 right-4 z-30 flex justify-between items-center px-6 py-3 snow-glass-header rounded-2xl transition-opacity duration-300">
+        <div class="flex items-center space-x-3">
+            <div class="w-3.5 h-3.5 bg-sky-200 rounded-full animate-pulse shadow-[0_0_12px_#bae6fd]"></div>
+            <h1 class="text-lg font-black tracking-wider bg-gradient-to-r from-white via-sky-100 to-sky-300 bg-clip-text text-transparent drop-shadow">
+                ❄️ 3840x1080 SNOW GLASS GRID SYSTEM
+            </h1>
+        </div>
+        <div class="flex items-center space-x-3 text-xs font-semibold text-slate-200">
+            <label class="px-3.5 py-2 bg-gradient-to-r from-sky-500/80 to-blue-600/80 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl cursor-pointer transition shadow flex items-center space-x-2 border border-sky-300/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>Upload 1 Master Image (Original Slices)</span>
+                <input type="file" id="masterSlicedUpload" accept="image/*" onchange="handleMasterSlicedUpload(event)" class="hidden">
+            </label>
+            <button onclick="toggleOriginalView()" id="origViewBtn" class="px-3 py-2 bg-teal-600/80 hover:bg-teal-500 text-white rounded-xl border border-teal-300/40 transition shadow">100% Original View: OFF</button>
+            <button onclick="toggleAllLabels()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-sky-100 rounded-xl border border-white/20 transition">Toggle Labels</button>
+            <button onclick="resetGrid()" class="px-3 py-2 bg-rose-900/60 hover:bg-rose-800/80 text-rose-200 rounded-xl border border-rose-500/40 transition">Reset Default</button>
+        </div>
+    </header>
+
+    <main id="ultrawideGrid" class="ultrawide-canvas">
+        <!-- Generated dynamically -->
+    </main>
+
+    <div id="controlMenu" class="fixed top-24 right-6 w-96 snow-glass-menu rounded-2xl p-6 transform translate-x-[125%] opacity-0 pointer-events-none z-50 flex flex-col space-y-4 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-white/20 pb-3">
+            <h3 id="menuTitle" class="text-base font-black text-sky-200 uppercase tracking-wide">Configure Snow Box</h3>
+            <button onclick="explicitCloseMenu()" class="text-slate-300 hover:text-white text-xl font-bold">&times;</button>
+        </div>
+
+        <div class="flex flex-col space-y-1">
+            <label class="text-xs font-bold text-slate-200 uppercase tracking-wider">Cell Text (Uppercase)</label>
+            <input type="text" id="cellText" oninput="liveUpdate()" class="bg-black/40 border border-white/25 rounded-xl px-3 py-2 text-white text-sm font-semibold uppercase focus:outline-none focus:border-sky-300 transition">
+        </div>
+
+        <div class="flex flex-col space-y-2 border-t border-white/15 pt-3">
+            <label class="text-xs font-bold text-sky-200 uppercase tracking-wider">Image Eyedropper / Color Picker</label>
+            <button onclick="pickColorFromScreen()" class="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-sky-400/80 to-blue-500/80 hover:from-sky-300 hover:to-blue-400 text-white rounded-xl text-xs font-bold transition shadow border border-sky-200/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4c0-1.48.8-2.75 2-3.45V5a2 2 0 012-2h4a2 2 0 012 2v9.55A4 4 0 0113 17a4 4 0 01-4 4zm0 0h2a2 2 0 002-2v-1a2 2 0 00-2-2H7a2 2 0 00-2 2v1a2 2 0 002 2z"></path></svg>
+                <span>Pick Color From Image / Screen</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="flex flex-col space-y-1">
+                <label class="text-xs font-bold text-slate-200 uppercase tracking-wider">Snow Glass Tint</label>
+                <div class="flex items-center space-x-2">
+                    <input type="color" id="cellBgColor" oninput="liveUpdate()" class="w-9 h-9 bg-transparent rounded-lg cursor-pointer border border-white/30">
+                    <input type="text" id="cellBgHex" oninput="syncColorInput('bg')" class="w-full bg-black/40 border border-white/25 rounded-lg px-2 py-1.5 text-xs font-mono text-white uppercase">
+                </div>
+            </div>
+            <div class="flex flex-col space-y-1">
+                <label class="text-xs font-bold text-slate-200 uppercase tracking-wider">Text Color</label>
+                <div class="flex items-center space-x-2">
+                    <input type="color" id="cellTextColor" oninput="liveUpdate()" class="w-9 h-9 bg-transparent rounded-lg cursor-pointer border border-white/30">
+                    <input type="text" id="cellTextHex" oninput="syncColorInput('text')" class="w-full bg-black/40 border border-white/25 rounded-lg px-2 py-1.5 text-xs font-mono text-white uppercase">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col space-y-1 pt-1">
+            <div class="flex justify-between text-xs text-slate-200">
+                <span>Snow Tint Opacity (0% = 100% Crystal Clear)</span>
+                <span id="overlayOpacityVal" class="font-mono text-sky-200">15%</span>
+            </div>
+            <input type="range" id="filterOverlayOpacity" min="0" max="100" value="15" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+        </div>
+
+        <div class="flex flex-col space-y-3 border-t border-white/15 pt-3">
+            <label class="text-xs font-bold text-sky-200 uppercase tracking-wider">Image Levels & Filters</label>
+            
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200">
+                    <span>Brightness</span>
+                    <span id="brightnessVal" class="font-mono text-sky-200">100%</span>
+                </div>
+                <input type="range" id="filterBrightness" min="0" max="200" value="100" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200">
+                    <span>Contrast</span>
+                    <span id="contrastVal" class="font-mono text-sky-200">100%</span>
+                </div>
+                <input type="range" id="filterContrast" min="0" max="200" value="100" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200">
+                    <span>Saturation</span>
+                    <span id="saturateVal" class="font-mono text-sky-200">100%</span>
+                </div>
+                <input type="range" id="filterSaturate" min="0" max="200" value="100" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200"><span>Hue Rotate</span><span id="hueRotateVal" class="font-mono text-sky-200">0°</span></div>
+                <input type="range" id="filterHueRotate" min="0" max="360" value="0" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200"><span>Grayscale</span><span id="grayscaleVal" class="font-mono text-sky-200">0%</span></div>
+                <input type="range" id="filterGrayscale" min="0" max="100" value="0" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200"><span>Sepia</span><span id="sepiaVal" class="font-mono text-sky-200">0%</span></div>
+                <input type="range" id="filterSepia" min="0" max="100" value="0" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200"><span>Blur</span><span id="blurVal" class="font-mono text-sky-200">0px</span></div>
+                <input type="range" id="filterBlur" min="0" max="10" step="0.1" value="0" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="flex flex-col space-y-1">
+                <div class="flex justify-between text-xs text-slate-200"><span>Invert</span><span id="invertVal" class="font-mono text-sky-200">0%</span></div>
+                <input type="range" id="filterInvert" min="0" max="100" value="0" oninput="liveUpdate()" class="w-full accent-sky-300 cursor-pointer">
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="resetImageFilters()" class="px-3 py-2 bg-sky-500/20 hover:bg-sky-500/40 text-sky-100 border border-sky-300/30 rounded-lg text-xs font-bold">Reset Image Filters</button>
+                <button onclick="setCrystalClear()" class="px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-100 border border-emerald-300/30 rounded-lg text-xs font-bold">Crystal Clear Tint</button>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-black/35 p-2.5 rounded-xl border border-white/15">
+            <span class="text-xs text-slate-200 font-medium">Blend text & background:</span>
+            <button onclick="makeColorsSame()" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-lg text-xs transition shadow border border-sky-200/40">Make Same</button>
+        </div>
+
+        <div class="flex flex-col space-y-2 border-t border-white/15 pt-3">
+            <label class="text-xs font-bold text-sky-200 uppercase tracking-wider">Single Box Image / Slice Override</label>
+            <div class="flex items-center space-x-2">
+                <label class="flex-1 flex items-center justify-center px-4 py-2 bg-white/15 hover:bg-white/25 text-sky-100 rounded-xl border border-white/20 cursor-pointer text-xs font-semibold transition">
+                    <span>Upload Box Image</span>
+                    <input type="file" id="cellImageUpload" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+                </label>
+                <button onclick="removeCellImage()" class="px-3 py-2 bg-rose-900/50 hover:bg-rose-800/70 text-rose-200 rounded-xl border border-rose-500/40 text-xs font-semibold transition">Remove</button>
+            </div>
+        </div>
+
+        <div class="bg-black/35 p-3 rounded-xl border border-white/15 text-xs space-y-2">
+            <p class="font-bold text-sky-200 uppercase tracking-wider">Color Spectrum Support & Live Audit Report</p>
+            <div id="colorFormatsDisplay" class="font-mono text-slate-200 space-y-1">
+                <p>HEX: <span class="text-white">#0F1C30</span> | RGB: <span class="text-white">15, 28, 48</span></p>
+                <p>HSL: <span class="text-white">216°, 52%, 12%</span> | OKLCH: <span class="text-white">0.24, 0.04, 250</span></p>
+                <p class="text-sky-200 border-t border-white/15 pt-1 mt-1">Snow Tint Level: 15% Overlay Active (Original Image Pristine)</p>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-white/15">
+            <button onclick="explicitCloseMenu()" class="w-full py-2.5 bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider transition shadow-lg border border-sky-200/50">Close Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Snow Effect Animation Loop
+        const snowCanvas = document.getElementById('snowCanvas');
+        const snowCtx = snowCanvas.getContext('2d');
+        let snowflakes = [];
+
+        function resizeSnowCanvas() {
+            snowCanvas.width = window.innerWidth;
+            snowCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeSnowCanvas);
+        resizeSnowCanvas();
+
+        function createSnowflakes() {
+            snowflakes = [];
+            const count = Math.floor(window.innerWidth / 20);
+            for (let i = 0; i < count; i++) {
+                snowflakes.push({
+                    x: Math.random() * snowCanvas.width,
+                    y: Math.random() * snowCanvas.height,
+                    r: Math.random() * 3 + 1,
+                    d: Math.random() * count,
+                    opacity: Math.random() * 0.7 + 0.3
+                });
+            }
+        }
+        createSnowflakes();
+
+        function drawSnowflakes() {
+            snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+            snowCtx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            snowCtx.beginPath();
+            for (let i = 0; i < snowflakes.length; i++) {
+                const p = snowflakes[i];
+                snowCtx.moveTo(p.x, p.y);
+                snowCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+            }
+            snowCtx.fill();
+            updateSnowflakes();
+        }
+
+        let angle = 0;
+        function updateSnowflakes() {
+            angle += 0.01;
+            for (let i = 0; i < snowflakes.length; i++) {
+                const p = snowflakes[i];
+                p.y += Math.cos(angle + p.d) + 1 + p.r / 2;
+                p.x += Math.sin(angle) * 1.2;
+
+                if (p.x > snowCanvas.width + 5 || p.x < -5 || p.y > snowCanvas.height) {
+                    if (i % 3 > 0) {
+                        snowflakes[i] = { x: Math.random() * snowCanvas.width, y: -10, r: p.r, d: p.d, opacity: p.opacity };
+                    } else {
+                        if (Math.sin(angle) > 0) {
+                            snowflakes[i] = { x: -5, y: Math.random() * snowCanvas.height, r: p.r, d: p.d, opacity: p.opacity };
+                        } else {
+                            snowflakes[i] = { x: snowCanvas.width + 5, y: Math.random() * snowCanvas.height, r: p.r, d: p.d, opacity: p.opacity };
+                        }
+                    }
+                }
+            }
+        }
+
+        function animateSnow() {
+            drawSnowflakes();
+            requestAnimationFrame(animateSnow);
+        }
+
+        // Grid state management & logic
+        const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'H'];
+        const cols = [1, 2, 3, 4, 5, 6, 7];
+
+        let gridState = {};
+        try {
+            const saved = localStorage.getItem('ultrawide_3840_snow_glass_v4');
+            if (saved) {
+                gridState = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn('Could not load from localStorage, using memory state.');
+        }
+
+        let activeCellId = null;
+        let hideTimer = null;
+        let labelsVisible = true;
+        let originalView100 = false;
+        let menuExplicitlyClosed = false;
+
+        function getDefaultCellState(id) {
+            return {
+                text: id,
+                bgColor: '#0f1c30',
+                textColor: '#0f1c30',
+                overlayOpacity: 15,
+                bgImage: '',
+                bgPosition: '',
+                bgSize: '',
+                brightness: 100,
+                contrast: 100,
+                saturate: 100,
+                hueRotate: 0,
+                grayscale: 0,
+                sepia: 0,
+                blur: 0,
+                invert: 0
+            };
+        }
+
+        function safeSaveState() {
+            try {
+                localStorage.setItem('ultrawide_3840_snow_glass_v4', JSON.stringify(gridState));
+            } catch (err) {
+                console.warn('Storage quota reached.', err);
+            }
+        }
+
+        function initGrid() {
+            const container = document.getElementById('ultrawideGrid');
+            container.innerHTML = '';
+
+            rows.forEach((r, rowIndex) => {
+                cols.forEach((c, colIndex) => {
+                    const id = `${r}${c}`;
+                    if (!gridState[id]) {
+                        gridState[id] = getDefaultCellState(id);
+                    }
+                    const state = gridState[id];
+
+                    const cell = document.createElement('div');
+                    cell.id = `cell-${id}`;
+                    cell.className = `grid-cell ${activeCellId === id ? 'active-cell' : ''}`;
+                    
+                    if (state.bgImage) {
+                        const opacityDecimal = originalView100 ? 0 : ((state.overlayOpacity !== undefined ? state.overlayOpacity : 15) / 100);
+                        const rgbMatch = hexToRgbValues(state.bgColor);
+                        cell.style.backgroundImage = `linear-gradient(rgba(${rgbMatch}, ${opacityDecimal}), rgba(${rgbMatch}, ${opacityDecimal})), url('${state.bgImage}')`;
+                        cell.style.backgroundBlendMode = 'normal';
+                        cell.style.backgroundColor = originalView100 ? 'transparent' : state.bgColor;
+                        cell.style.backgroundPosition = state.bgPosition || `${(colIndex / 6) * 100}% ${(rowIndex / 6) * 100}%`;
+                        cell.style.backgroundSize = state.bgSize || '700% 700%';
+                    } else {
+                        cell.style.backgroundImage = 'none';
+                        cell.style.backgroundColor = state.bgColor;
+                    }
+
+                    cell.style.filter = buildImageFilter(state);
+
+                    if (activeCellId === id) {
+                        cell.style.color = '#bae6fd';
+                    } else {
+                        cell.style.color = originalView100 ? '#ffffff' : state.textColor;
+                    }
+
+                    cell.innerText = labelsVisible ? state.text : '';
+
+                    cell.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (id === 'A1' && activeCellId !== 'A1') {
+                            toggleAllLabels();
+                        }
+                        openMenu(id);
+                    });
+
+                    container.appendChild(cell);
+                });
+            });
+        }
+
+        function toggleOriginalView() {
+            originalView100 = !originalView100;
+            const btn = document.getElementById('origViewBtn');
+            if (originalView100) {
+                btn.innerText = "100% Original View: ON";
+                btn.className = "px-3 py-2 bg-teal-500 text-white rounded-xl border border-teal-200 transition shadow font-bold";
+            } else {
+                btn.innerText = "100% Original View: OFF";
+                btn.className = "px-3 py-2 bg-teal-600/80 hover:bg-teal-500 text-white rounded-xl border border-teal-300/40 transition shadow";
+            }
+            initGrid();
+        }
+
+        function resetActivityTimer() {
+            if (menuExplicitlyClosed) return;
+            const menu = document.getElementById('controlMenu');
+            const header = document.getElementById('topHeader');
+            
+            menu.classList.remove('translate-x-[125%]', 'opacity-0', 'pointer-events-none');
+            header.classList.remove('opacity-0', 'pointer-events-none');
+
+            if (hideTimer) clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                if (!menuExplicitlyClosed) {
+                    menu.classList.add('translate-x-[125%]', 'opacity-0', 'pointer-events-none');
+                    header.classList.add('opacity-0', 'pointer-events-none');
+                }
+            }, 10000);
+        }
+
+        function explicitCloseMenu() {
+            menuExplicitlyClosed = true;
+            if (hideTimer) clearTimeout(hideTimer);
+            const menu = document.getElementById('controlMenu');
+            const header = document.getElementById('topHeader');
+            menu.classList.add('translate-x-[125%]', 'opacity-0', 'pointer-events-none');
+            header.classList.add('opacity-0', 'pointer-events-none');
+            
+            activeCellId = null;
+            document.querySelectorAll('.grid-cell').forEach(el => el.classList.remove('active-cell'));
+        }
+
+        window.addEventListener('mousemove', () => {
+            if (menuExplicitlyClosed) {
+                menuExplicitlyClosed = false;
+            }
+            resetActivityTimer();
+        });
+
+        window.addEventListener('touchstart', () => {
+            if (menuExplicitlyClosed) {
+                menuExplicitlyClosed = false;
+            }
+            resetActivityTimer();
+        });
+
+        function toggleAllLabels() {
+            labelsVisible = !labelsVisible;
+            initGrid();
+        }
+
+        // Keep the original image file data: no resizing, canvas conversion, or lossy compression.
+        // Note: localStorage has a small browser-dependent quota; very large 4K images may not
+        // persist after refresh until image storage is moved to IndexedDB.
+        function handleMasterSlicedUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please choose a valid image file.');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const originalDataUrl = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    rows.forEach((r, rowIndex) => {
+                        cols.forEach((c, colIndex) => {
+                            const id = `${r}${c}`;
+                            if (!gridState[id]) gridState[id] = getDefaultCellState(id);
+                            gridState[id].bgImage = originalDataUrl;
+                            gridState[id].bgPosition = `${(colIndex / 6) * 100}% ${(rowIndex / 6) * 100}%`;
+                            gridState[id].bgSize = '700% 700%';
+                        });
+                    });
+
+                    safeSaveState();
+                    initGrid();
+                    resetActivityTimer();
+                    if (file.size > 4 * 1024 * 1024) {
+                        console.warn('Large original image loaded without compression. Browser storage may not persist it after refresh.');
+                    }
+                };
+                img.onerror = function() { alert('The selected image could not be opened by this browser.'); };
+                img.src = originalDataUrl;
+            };
+            reader.onerror = function() { alert('Could not read the selected image file.'); };
+            reader.readAsDataURL(file);
+        }
+
+        async function pickColorFromScreen() {
+            if ('EyeDropper' in window) {
+                try {
+                    const eyeDropper = new EyeDropper();
+                    const result = await eyeDropper.open();
+                    const pickedHex = result.sRGBHex;
+
+                    document.getElementById('cellBgColor').value = pickedHex;
+                    document.getElementById('cellBgHex').value = pickedHex;
+                    liveUpdate();
+                } catch (e) {
+                    console.log('Eyedropper canceled', e);
+                }
+            } else {
+                console.log('Eyedropper API is supported in modern Chromium browsers.');
+            }
+        }
+
+        function openMenu(id) {
+            activeCellId = id;
+            menuExplicitlyClosed = false;
+            const state = gridState[id] || getDefaultCellState(id);
+
+            document.getElementById('menuTitle').innerText = `Box: ${id}`;
+            document.getElementById('cellText').value = state.text;
+            document.getElementById('cellBgColor').value = state.bgColor || '#0f1c30';
+            document.getElementById('cellBgHex').value = state.bgColor || '#0f1c30';
+            document.getElementById('cellTextColor').value = state.textColor || '#0f1c30';
+            document.getElementById('cellTextHex').value = state.textColor || '#0f1c30';
+
+            const opacityVal = state.overlayOpacity !== undefined ? state.overlayOpacity : 15;
+            document.getElementById('filterOverlayOpacity').value = opacityVal;
+            document.getElementById('overlayOpacityVal').innerText = `${opacityVal}%`;
+
+            document.getElementById('filterBrightness').value = state.brightness || 100;
+            document.getElementById('filterContrast').value = state.contrast || 100;
+            document.getElementById('filterSaturate').value = state.saturate ?? 100;
+            document.getElementById('filterHueRotate').value = state.hueRotate ?? 0;
+            document.getElementById('filterGrayscale').value = state.grayscale ?? 0;
+            document.getElementById('filterSepia').value = state.sepia ?? 0;
+            document.getElementById('filterBlur').value = state.blur ?? 0;
+            document.getElementById('filterInvert').value = state.invert ?? 0;
+            syncFilterValueLabels(state);
+            updateColorFormats(state.bgColor || '#0f1c30', opacityVal, state);
+
+            document.querySelectorAll('.grid-cell').forEach(el => el.classList.remove('active-cell'));
+            const currentCell = document.getElementById(`cell-${id}`);
+            if (currentCell) currentCell.classList.add('active-cell');
+
+            const menu = document.getElementById('controlMenu');
+            menu.classList.remove('translate-x-[125%]', 'opacity-0', 'pointer-events-none');
+
+            resetActivityTimer();
+            initGrid();
+        }
+
+        function liveUpdate() {
+            if (!activeCellId) return;
+            resetActivityTimer();
+
+            let textInput = document.getElementById('cellText').value.toUpperCase();
+            const bgColor = document.getElementById('cellBgColor').value;
+            const textColor = document.getElementById('cellTextColor').value;
+            const overlayOpacity = document.getElementById('filterOverlayOpacity').value;
+
+            const brightness = document.getElementById('filterBrightness').value;
+            const contrast = document.getElementById('filterContrast').value;
+            const saturate = Number(document.getElementById('filterSaturate').value);
+            const hueRotate = Number(document.getElementById('filterHueRotate').value);
+            const grayscale = Number(document.getElementById('filterGrayscale').value);
+            const sepia = Number(document.getElementById('filterSepia').value);
+            const blur = Number(document.getElementById('filterBlur').value);
+            const invert = Number(document.getElementById('filterInvert').value);
+
+            document.getElementById('overlayOpacityVal').innerText = `${overlayOpacity}%`;
+
+            document.getElementById('cellBgHex').value = bgColor;
+            document.getElementById('cellTextHex').value = textColor;
+
+            updateColorFormats(bgColor, overlayOpacity, { brightness:Number(brightness), contrast:Number(contrast), saturate, hueRotate, grayscale, sepia, blur, invert });
+
+            if (!gridState[activeCellId]) {
+                gridState[activeCellId] = getDefaultCellState(activeCellId);
+            }
+
+            gridState[activeCellId].text = textInput;
+            gridState[activeCellId].bgColor = bgColor;
+            gridState[activeCellId].textColor = textColor;
+            gridState[activeCellId].overlayOpacity = overlayOpacity;
+            gridState[activeCellId].brightness = brightness;
+            gridState[activeCellId].contrast = contrast;
+            gridState[activeCellId].saturate = saturate;
+            gridState[activeCellId].hueRotate = hueRotate;
+            gridState[activeCellId].grayscale = grayscale;
+            gridState[activeCellId].sepia = sepia;
+            gridState[activeCellId].blur = blur;
+            gridState[activeCellId].invert = invert;
+
+            const cell = document.getElementById(`cell-${activeCellId}`);
+            if (cell) {
+                if (gridState[activeCellId].bgImage) {
+                    const opacityDecimal = originalView100 ? 0 : (overlayOpacity / 100);
+                    const rgbMatch = hexToRgbValues(bgColor);
+                    cell.style.backgroundImage = `linear-gradient(rgba(${rgbMatch}, ${opacityDecimal}), rgba(${rgbMatch}, ${opacityDecimal})), url('${gridState[activeCellId].bgImage}')`;
+                } else {
+                    cell.style.backgroundImage = 'none';
+                    cell.style.backgroundColor = bgColor;
+                }
+                cell.style.color = '#bae6fd';
+                cell.style.filter = buildImageFilter(gridState[activeCellId]);
+                cell.innerText = labelsVisible ? textInput : '';
+            }
+
+            safeSaveState();
+        }
+
+        // Keep the original file data for an individual box: no resizing or re-encoding.
+        function handleImageUpload(event) {
+            if (!activeCellId) return;
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please choose a valid image file.');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const originalDataUrl = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    if (!gridState[activeCellId]) {
+                        gridState[activeCellId] = getDefaultCellState(activeCellId);
+                    }
+                    gridState[activeCellId].bgImage = originalDataUrl;
+                    gridState[activeCellId].bgPosition = 'center';
+                    gridState[activeCellId].bgSize = 'cover';
+
+                    initGrid();
+                    safeSaveState();
+                    resetActivityTimer();
+                    if (file.size > 4 * 1024 * 1024) {
+                        console.warn('Large original image loaded without compression. Browser storage may not persist it after refresh.');
+                    }
+                };
+                img.onerror = function() { alert('The selected image could not be opened by this browser.'); };
+                img.src = originalDataUrl;
+            };
+            reader.onerror = function() { alert('Could not read the selected image file.'); };
+            reader.readAsDataURL(file);
+        }
+
+        function removeCellImage() {
+            if (!activeCellId) return;
+            if (gridState[activeCellId]) {
+                gridState[activeCellId].bgImage = '';
+                gridState[activeCellId].bgPosition = '';
+                gridState[activeCellId].bgSize = '';
+            }
+
+            initGrid();
+            safeSaveState();
+            resetActivityTimer();
+        }
+
+        function syncColorInput(type) {
+            if (type === 'bg') {
+                const val = document.getElementById('cellBgHex').value;
+                if (/^#[0-9A-F]{6}$/i.test(val)) {
+                    document.getElementById('cellBgColor').value = val;
+                    liveUpdate();
+                }
+            } else if (type === 'text') {
+                const val = document.getElementById('cellTextHex').value;
+                if (/^#[0-9A-F]{6}$/i.test(val)) {
+                    document.getElementById('cellTextColor').value = val;
+                    liveUpdate();
+                }
+            }
+        }
+
+        function makeColorsSame() {
+            const bgHex = document.getElementById('cellBgColor').value;
+            document.getElementById('cellTextColor').value = bgHex;
+            document.getElementById('cellTextHex').value = bgHex;
+            liveUpdate();
+        }
+
+        function hexToRgbValues(hex) {
+            let bigint = parseInt(hex.replace('#',''), 16);
+            let r = (bigint >> 16) & 255;
+            let g = (bigint >> 8) & 255;
+            let b = bigint & 255;
+            return `${r}, ${g}, ${b}`;
+        }
+
+        function hexToHsl(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!result) return '0, 0%, 0%';
+            let r = parseInt(result[1], 16) / 255;
+            let g = parseInt(result[2], 16) / 255;
+            let b = parseInt(result[3], 16) / 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0;
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return `${Math.round(h * 360)}°, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
+        }
+
+        function hexToOklchApprox(hex) {
+            let rgb = hexToRgbValues(hex).split(',').map(Number);
+            let r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
+            let l = Math.round((0.2126 * r + 0.7152 * g + 0.0722 * b) * 100) / 100;
+            return `${l > 0.8 ? '0.85' : l > 0.4 ? '0.55' : '0.24'}, 0.04, 250`;
+        }
+
+        function buildImageFilter(state = {}) {
+            const brightness = state.brightness ?? 100;
+            const contrast = state.contrast ?? 100;
+            const saturate = state.saturate ?? 100;
+            const hueRotate = state.hueRotate ?? 0;
+            const grayscale = state.grayscale ?? 0;
+            const sepia = state.sepia ?? 0;
+            const blur = state.blur ?? 0;
+            const invert = state.invert ?? 0;
+            return `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturate}%) hue-rotate(${hueRotate}deg) grayscale(${grayscale}%) sepia(${sepia}%) blur(${blur}px) invert(${invert}%)`;
+        }
+
+        function syncFilterValueLabels(state = {}) {
+            document.getElementById('brightnessVal').innerText = `${state.brightness ?? 100}%`;
+            document.getElementById('contrastVal').innerText = `${state.contrast ?? 100}%`;
+            document.getElementById('saturateVal').innerText = `${state.saturate ?? 100}%`;
+            document.getElementById('hueRotateVal').innerText = `${state.hueRotate ?? 0}°`;
+            document.getElementById('grayscaleVal').innerText = `${state.grayscale ?? 0}%`;
+            document.getElementById('sepiaVal').innerText = `${state.sepia ?? 0}%`;
+            document.getElementById('blurVal').innerText = `${state.blur ?? 0}px`;
+            document.getElementById('invertVal').innerText = `${state.invert ?? 0}%`;
+        }
+
+        function resetImageFilters() {
+            if (!activeCellId) return;
+            const defaults = { brightness:100, contrast:100, saturate:100, hueRotate:0, grayscale:0, sepia:0, blur:0, invert:0 };
+            Object.assign(gridState[activeCellId], defaults);
+            document.getElementById('filterBrightness').value = 100;
+            document.getElementById('filterContrast').value = 100;
+            document.getElementById('filterSaturate').value = 100;
+            document.getElementById('filterHueRotate').value = 0;
+            document.getElementById('filterGrayscale').value = 0;
+            document.getElementById('filterSepia').value = 0;
+            document.getElementById('filterBlur').value = 0;
+            document.getElementById('filterInvert').value = 0;
+            liveUpdate();
+        }
+
+        function setCrystalClear() {
+            if (!activeCellId) return;
+            document.getElementById('filterOverlayOpacity').value = 0;
+            liveUpdate();
+        }
+
+        function updateColorFormats(hex, opacity, state = {}) {
+            const rgb = hexToRgbValues(hex);
+            const hsl = hexToHsl(hex);
+            const oklch = hexToOklchApprox(hex);
+            const tint = Number(opacity);
+            const tintDescription = tint === 0 ? 'Crystal Clear — no tint overlay' : `${tint}% tint overlay`;
+            const imageFilterSummary = `Brightness ${state.brightness ?? 100}% · Contrast ${state.contrast ?? 100}% · Saturation ${state.saturate ?? 100}%`;
+            const extraFilterSummary = `Hue ${state.hueRotate ?? 0}° · Grayscale ${state.grayscale ?? 0}% · Sepia ${state.sepia ?? 0}% · Blur ${state.blur ?? 0}px · Invert ${state.invert ?? 0}%`;
+            document.getElementById('colorFormatsDisplay').innerHTML = `
+                <p>HEX: <span class="text-white">${hex}</span> | RGB: <span class="text-white">${rgb}</span></p>
+                <p>HSL: <span class="text-white">${hsl}</span> | OKLCH: <span class="text-white">${oklch}</span></p>
+                <p class="text-sky-200 border-t border-white/15 pt-1 mt-1">Snow Tint Opacity: <span class="text-white">${tint}%</span> — ${tintDescription}</p>
+                <p class="text-slate-300">Image Levels: <span class="text-white">${imageFilterSummary}</span></p>
+                <p class="text-slate-300">Advanced Filters: <span class="text-white">${extraFilterSummary}</span></p>
+                <p class="text-emerald-200">Live Audit: original image data is not re-encoded by these visual filters. Current effects change display only.</p>
+            `;
+        }
+
+        function resetGrid() {
+            try {
+                localStorage.removeItem('ultrawide_3840_snow_glass_v4');
+            } catch (e) {}
+            gridState = {};
+            explicitCloseMenu();
+            initGrid();
+        }
+
+        window.onload = () => {
+            initGrid();
+            animateSnow();
+            resetActivityTimer();
+        };
+    </script>
+</body>
+</html>
