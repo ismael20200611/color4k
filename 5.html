@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vw Ultrawide 3840x1080 Snow Glass Grid System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas library for high-performance 4K/8K canvas rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         
@@ -81,6 +82,12 @@
             box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.08);
         }
 
+        /* Borderless class when lines are hidden */
+        .grid-cell.hide-lines {
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+
         .grid-cell:hover {
             border-color: rgba(224, 242, 254, 0.8);
             z-index: 10;
@@ -89,9 +96,9 @@
         }
 
         .grid-cell.active-cell {
-            border: 2px solid #bae6fd;
+            border: 2px solid #bae6fd !important;
             z-index: 20;
-            box-shadow: 0 0 35px rgba(186, 230, 253, 0.8), inset 0 0 20px rgba(224, 242, 254, 0.6);
+            box-shadow: 0 0 35px rgba(186, 230, 253, 0.8), inset 0 0 20px rgba(224, 242, 254, 0.6) !important;
         }
 
         /* Snow Glass Control Menu Sidebar */
@@ -137,7 +144,7 @@
                 ❄️ 3840x1080 SNOW GLASS GRID SYSTEM
             </h1>
         </div>
-        <div class="flex items-center space-x-3 text-xs font-semibold text-slate-200">
+        <div class="flex items-center space-x-2 text-xs font-semibold text-slate-200">
             <label class="px-3 py-2 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-xl cursor-pointer border border-emerald-300/40 transition shadow">
                 Upload Wallpaper
                 <input type="file" id="wallpaperUpload" accept="image/*" onchange="handleWallpaperUpload(event)" class="hidden">
@@ -145,11 +152,31 @@
             <button onclick="clearWallpaper()" class="px-3 py-2 bg-slate-700/80 hover:bg-slate-600 text-white rounded-xl border border-white/20 transition">Clear Wallpaper</button>
             <label class="px-3.5 py-2 bg-gradient-to-r from-sky-500/80 to-blue-600/80 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl cursor-pointer transition shadow flex items-center space-x-2 border border-sky-300/40">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <span>Upload 1 Master Image (Original Slices)</span>
+                <span>Upload Master Image</span>
                 <input type="file" id="masterSlicedUpload" accept="image/*" onchange="handleMasterSlicedUpload(event)" class="hidden">
             </label>
+            
             <button onclick="toggleOriginalView()" id="origViewBtn" class="px-3 py-2 bg-teal-600/80 hover:bg-teal-500 text-white rounded-xl border border-teal-300/40 transition shadow">100% Original View: OFF</button>
-            <button onclick="toggleAllLabels()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-sky-100 rounded-xl border border-white/20 transition">Toggle Labels</button>
+            <button onclick="toggleAllText()" id="textToggleBtn" class="px-3 py-2 bg-indigo-600/80 hover:bg-indigo-500 text-white rounded-xl border border-indigo-300/40 transition shadow font-bold">Remove All Text: OFF</button>
+            <button onclick="toggleGridLines()" id="linesToggleBtn" class="px-3 py-2 bg-amber-600/80 hover:bg-amber-500 text-white rounded-xl border border-amber-300/40 transition shadow font-bold">Remove All Lines: OFF</button>
+
+            <!-- Export Image Controls -->
+            <div class="flex items-center space-x-1 bg-black/40 p-1 rounded-xl border border-sky-300/30">
+                <select id="exportQuality" class="bg-slate-800 text-sky-200 text-xs font-bold rounded-lg px-2 py-1 border border-white/20 focus:outline-none">
+                    <option value="1">1x Native (3840x1080)</option>
+                    <option value="2" selected>2x 8K UHD Quality</option>
+                    <option value="3">3x Extreme Quality</option>
+                </select>
+                <select id="exportFormat" class="bg-slate-800 text-sky-200 text-xs font-bold rounded-lg px-2 py-1 border border-white/20 focus:outline-none">
+                    <option value="png">PNG (Lossless)</option>
+                    <option value="jpeg">JPEG (High Quality)</option>
+                </select>
+                <button onclick="exportHighResGrid()" id="exportBtn" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-lg transition shadow font-extrabold flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Save Image</span>
+                </button>
+            </div>
+
             <button onclick="resetGrid()" class="px-3 py-2 bg-rose-900/60 hover:bg-rose-800/80 text-rose-200 rounded-xl border border-rose-500/40 transition">Reset Default</button>
         </div>
     </header>
@@ -289,8 +316,6 @@
     </div>
 
     <script>
-        // Panoramic wallpaper controls. The uploaded file is used directly as a CSS image;
-        // it is not resized or re-encoded by this page.
         function handleWallpaperUpload(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
@@ -408,7 +433,8 @@
 
         let activeCellId = null;
         let hideTimer = null;
-        let labelsVisible = true;
+        let textVisible = true;
+        let gridLinesVisible = true;
         let originalView100 = false;
         let menuExplicitlyClosed = false;
 
@@ -455,7 +481,7 @@
 
                     const cell = document.createElement('div');
                     cell.id = `cell-${id}`;
-                    cell.className = `grid-cell ${activeCellId === id ? 'active-cell' : ''}`;
+                    cell.className = `grid-cell ${activeCellId === id ? 'active-cell' : ''} ${!gridLinesVisible ? 'hide-lines' : ''}`;
                     
                     if (state.bgImage) {
                         const opacityDecimal = originalView100 ? 0 : ((state.overlayOpacity !== undefined ? state.overlayOpacity : 15) / 100);
@@ -478,13 +504,10 @@
                         cell.style.color = originalView100 ? '#ffffff' : state.textColor;
                     }
 
-                    cell.innerText = labelsVisible ? state.text : '';
+                    cell.innerText = textVisible ? state.text : '';
 
                     cell.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (id === 'A1' && activeCellId !== 'A1') {
-                            toggleAllLabels();
-                        }
                         openMenu(id);
                     });
 
@@ -504,6 +527,96 @@
                 btn.className = "px-3 py-2 bg-teal-600/80 hover:bg-teal-500 text-white rounded-xl border border-teal-300/40 transition shadow";
             }
             initGrid();
+        }
+
+        function toggleAllText() {
+            textVisible = !textVisible;
+            const btn = document.getElementById('textToggleBtn');
+            if (!textVisible) {
+                btn.innerText = "Remove All Text: ON";
+                btn.className = "px-3 py-2 bg-indigo-500 text-white rounded-xl border border-indigo-200 transition shadow font-bold";
+            } else {
+                btn.innerText = "Remove All Text: OFF";
+                btn.className = "px-3 py-2 bg-indigo-600/80 hover:bg-indigo-500 text-white rounded-xl border border-indigo-300/40 transition shadow font-bold";
+            }
+            initGrid();
+        }
+
+        function toggleGridLines() {
+            gridLinesVisible = !gridLinesVisible;
+            const btn = document.getElementById('linesToggleBtn');
+            if (!gridLinesVisible) {
+                btn.innerText = "Remove All Lines: ON";
+                btn.className = "px-3 py-2 bg-amber-500 text-white rounded-xl border border-amber-200 transition shadow font-bold";
+            } else {
+                btn.innerText = "Remove All Lines: OFF";
+                btn.className = "px-3 py-2 bg-amber-600/80 hover:bg-amber-500 text-white rounded-xl border border-amber-300/40 transition shadow font-bold";
+            }
+            initGrid();
+        }
+
+        /* Fixed High-Performance Export function that captures unmodified/default cells perfectly */
+        async function exportHighResGrid() {
+            const btn = document.getElementById('exportBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="animate-spin">⏳</span> <span>Exporting...</span>`;
+            btn.disabled = true;
+
+            const scale = parseFloat(document.getElementById('exportQuality').value) || 2;
+            const format = document.getElementById('exportFormat').value || 'png';
+            const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+
+            const targetElement = document.getElementById('ultrawideGrid');
+
+            // 1. Temporarily apply explicit background color to default/unchanged cells for html2canvas
+            const allCells = targetElement.querySelectorAll('.grid-cell');
+            const originalStyles = [];
+
+            allCells.forEach((cell) => {
+                const computedStyle = window.getComputedStyle(cell);
+                originalStyles.push({
+                    cell: cell,
+                    bgColor: cell.style.backgroundColor,
+                    bgImage: cell.style.backgroundImage
+                });
+
+                // Ensure default/unchanged cells have an explicit background color rendered
+                if (!cell.style.backgroundColor || cell.style.backgroundColor === 'transparent') {
+                    cell.style.backgroundColor = computedStyle.backgroundColor || '#0f1c30';
+                }
+            });
+
+            try {
+                const canvas = await html2canvas(targetElement, {
+                    scale: scale,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#0b1329', // Match page dark background
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        // Ensure active highlight borders don't distort export
+                        const clonedCells = clonedDoc.querySelectorAll('.grid-cell');
+                        clonedCells.forEach(c => c.classList.remove('active-cell'));
+                    }
+                });
+
+                const link = document.createElement('a');
+                link.download = `SnowGlass_3840x1080_Grid_${scale}x_${Date.now()}.${format}`;
+                link.href = canvas.toDataURL(mimeType, 1.0);
+                link.click();
+            } catch (err) {
+                console.error("Export Error:", err);
+                alert("Failed to render high-res image.");
+            } finally {
+                // 2. Restore original styles back to DOM
+                originalStyles.forEach(item => {
+                    item.cell.style.backgroundColor = item.bgColor;
+                    item.cell.style.backgroundImage = item.bgImage;
+                });
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         function resetActivityTimer() {
@@ -549,14 +662,6 @@
             resetActivityTimer();
         });
 
-        function toggleAllLabels() {
-            labelsVisible = !labelsVisible;
-            initGrid();
-        }
-
-        // 4K/8K-ready: preserve original image bytes as a data URL. No resizing, canvas conversion, or lossy compression.
-        // Note: localStorage has a small browser-dependent quota; very large 4K images may not
-        // persist after refresh until image storage is moved to IndexedDB.
         function handleMasterSlicedUpload(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
@@ -586,14 +691,9 @@
                     safeSaveState();
                     initGrid();
                     resetActivityTimer();
-                    if (file.size > 4 * 1024 * 1024) {
-                        console.warn('Large original image loaded without compression. Browser storage may not persist it after refresh.');
-                    }
                 };
-                img.onerror = function() { alert('The selected image could not be opened by this browser.'); };
                 img.src = originalDataUrl;
             };
-            reader.onerror = function() { alert('Could not read the selected image file.'); };
             reader.readAsDataURL(file);
         }
 
@@ -610,8 +710,6 @@
                 } catch (e) {
                     console.log('Eyedropper canceled', e);
                 }
-            } else {
-                console.log('Eyedropper API is supported in modern Chromium browsers.');
             }
         }
 
@@ -697,7 +795,6 @@
             gridState[activeCellId].sepia = sepia;
             gridState[activeCellId].blur = blur;
             gridState[activeCellId].invert = invert;
-            updateColorFormats(bgColor, overlayOpacity, gridState[activeCellId]);
 
             const cell = document.getElementById(`cell-${activeCellId}`);
             if (cell) {
@@ -711,13 +808,12 @@
                 }
                 cell.style.color = '#bae6fd';
                 cell.style.setProperty('filter', buildImageFilter(gridState[activeCellId]), 'important');
-                cell.innerText = labelsVisible ? textInput : '';
+                cell.innerText = textVisible ? textInput : '';
             }
 
             safeSaveState();
         }
 
-        // 4K/8K-ready: preserve original file data for an individual box; no resizing or re-encoding.
         function handleImageUpload(event) {
             if (!activeCellId) return;
             const file = event.target.files && event.target.files[0];
@@ -742,17 +838,11 @@
                     gridState[activeCellId].bgSize = 'cover';
 
                     initGrid();
-                    updateFilterPreview(gridState[activeCellId].bgColor || '#0f1c30', gridState[activeCellId].overlayOpacity ?? 15, gridState[activeCellId], originalDataUrl);
                     safeSaveState();
                     resetActivityTimer();
-                    if (file.size > 4 * 1024 * 1024) {
-                        console.warn('Large original image loaded without compression. Browser storage may not persist it after refresh.');
-                    }
                 };
-                img.onerror = function() { alert('The selected image could not be opened by this browser.'); };
                 img.src = originalDataUrl;
             };
-            reader.onerror = function() { alert('Could not read the selected image file.'); };
             reader.readAsDataURL(file);
         }
 
@@ -907,8 +997,6 @@
                 <p class="text-slate-300">Image Levels: <span class="text-white">${imageFilterSummary}</span></p>
                 <p class="text-slate-300">Advanced Filters: <span class="text-white">${extraFilterSummary}</span></p>
                 <p class="text-violet-200">Original Image: <span class="text-white">${imageInfo}</span></p>
-                <p class="text-emerald-200">8K Quality Audit: original upload is not resized or re-encoded by this page. Display scaling and browser memory/storage limits still apply.</p>
-                <p class="text-emerald-200">Live Audit: original image data is not re-encoded by these visual filters. Current effects change display only.</p>
             `;
         }
 
